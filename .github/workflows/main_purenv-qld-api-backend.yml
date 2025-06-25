@@ -76,5 +76,5 @@ jobs:
         with:
           app-name: 'PureNV-QLD-API-Backend'
           slot-name: 'Production'
-          package: '.'
+          package: '/'
           

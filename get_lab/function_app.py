@@ -3,6 +3,9 @@ import logging
 import json
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info("🔍 get_lab function triggered")
+
+def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
         file = req.files.get('file') if req.files else None
         if not file:

@@ -6,3 +6,4 @@ azure-functions
 pandas
 openpyxl
 pyodbc
+requests_toolbelt

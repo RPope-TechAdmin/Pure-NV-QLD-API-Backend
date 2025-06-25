@@ -27,7 +27,7 @@ jobs:
       - name: Setup Python version
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
@@ -77,4 +77,5 @@ jobs:
           app-name: 'PureNV-QLD-API-Backend'
           slot-name: 'Production'
           package: '.'
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
           

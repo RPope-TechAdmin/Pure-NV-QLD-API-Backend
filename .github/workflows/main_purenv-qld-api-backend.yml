@@ -33,5 +33,6 @@ jobs:
         with:
           app-name: 'PureNV-QLD-API-Backend'
           slot-name: 'Production'
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
           package: '.'
           

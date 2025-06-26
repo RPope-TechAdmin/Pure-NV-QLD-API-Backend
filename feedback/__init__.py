@@ -31,10 +31,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         logging.info("💾 Pretending to save to database (simulate)")
         # Simulate success
         return func.HttpResponse(
-            json.dumps({ "message": "Feedback submitted successfully." }),
+            json.dumps({
+                "status": "ok",
+                "code": 200,
+                "message": "Feedback submitted"
+            }),
             mimetype="application/json",
             status_code=200
-        )
+)
+
 
     except Exception as e:
         logging.exception("🔥 Unexpected server error")

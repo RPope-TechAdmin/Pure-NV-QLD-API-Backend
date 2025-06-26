@@ -1,6 +1,14 @@
 import azure.functions as func
 import logging
 import json
+import pymssql
+
+conn = pymssql.connect(
+    server=os.getenv("SQL_SERVER"),
+    user=os.getenv("SQL_USER"),
+    password=os.getenv("SQL_PASSWORD"),
+    database=os.getenv("SQL_DB")
+)
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:

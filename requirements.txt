@@ -1,6 +1,6 @@
 azure-functions
 pandas
 openpyxl
-pyodbc
+pymssql
 requests_toolbelt
 xlrd

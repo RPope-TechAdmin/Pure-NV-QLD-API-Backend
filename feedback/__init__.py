@@ -5,6 +5,15 @@ import pyodbc
 import os
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info(f"Method received: {req.method}")
+
+    if req.method != "POST":
+        return func.HttpResponse(
+            json.dumps({ "error": "Only POST allowed" }),
+            mimetype="application/json",
+            status_code=405
+        )
+    
     try:
         data = req.get_json()
         name = data.get("name")

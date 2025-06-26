@@ -8,12 +8,19 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("🔁 Feedback function triggered")
 
     try:
+        content_type = req.headers.get("Content-Type", "")
+        if "application/json" not in content_type.lower():
+            raise ValueError("Missing or incorrect Content-Type header. Expected 'application/json'.")
+
         data = req.get_json()
         logging.info(f"📦 Received data: {data}")
     except Exception as e:
-        logging.exception("❌ Failed to parse JSON body")
+        logging.exception("❌ Failed to parse JSON body or invalid headers")
         return func.HttpResponse(
-            json.dumps({ "error": "Invalid JSON", "details": str(e) }),
+            json.dumps({
+                "error": "Invalid JSON or headers",
+                "details": str(e)
+            }),
             mimetype="application/json",
             status_code=400
         )
@@ -24,7 +31,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if not name or not feedback:
         logging.warning("⚠️ Missing required fields")
         return func.HttpResponse(
-            json.dumps({ "error": "Missing 'name' or 'feedback'" }),
+            json.dumps({ "error": "Both 'name' and 'feedback' fields are required." }),
             mimetype="application/json",
             status_code=400
         )

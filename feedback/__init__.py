@@ -1,58 +1,35 @@
-import logging
 import azure.functions as func
+import logging
 import json
-import pyodbc
-import os
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info(f"Method received: {req.method}")
-
-    if req.method != "POST":
-        return func.HttpResponse(
-            json.dumps({ "error": "Only POST allowed" }),
-            mimetype="application/json",
-            status_code=405
-        )
-    
     try:
+        logging.info("📥 Received feedback submission")
+
         data = req.get_json()
+        logging.info(f"📄 Payload: {data}")
+
         name = data.get("name")
         feedback = data.get("feedback")
 
         if not name or not feedback:
             return func.HttpResponse(
-                json.dumps({ "error": "Missing fields" }),
+                json.dumps({ "error": "Missing name or feedback" }),
                 mimetype="application/json",
                 status_code=400
             )
 
-        # Connect to Azure SQL DB
-        conn = pyodbc.connect(
-            f"Driver={{ODBC Driver 18 for SQL Server}};"
-            f"Server={os.getenv('SQL_SERVER')};"
-            f"Database={os.getenv('SQL_DB')};"
-            f"Uid={os.getenv('SQL_USER')};"
-            f"Pwd={os.getenv('SQL_PASSWORD')};"
-            "Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
-        )
-        cursor = conn.cursor()
-
-        # Use parameterized query to avoid SQL injection
-        cursor.execute(
-            "INSERT INTO [Narangba].[Feedback] (Name, Feedback) VALUES (?, ?);",
-            (name, feedback)
-        )
-        conn.commit()
-        cursor.close()
-        conn.close()
+        # Replace this with your actual processing logic
+        logging.info(f"✅ Feedback received from {name}: {feedback}")
 
         return func.HttpResponse(
-            json.dumps({ "message": "Feedback uploaded successfully. Thank you!" }),
-            mimetype="application/json"
+            json.dumps({ "message": "Feedback submitted successfully" }),
+            mimetype="application/json",
+            status_code=200
         )
 
     except Exception as e:
-        logging.exception("Error submitting feedback")
+        logging.exception("❌ Unexpected server error")
         return func.HttpResponse(
             json.dumps({ "error": str(e) }),
             mimetype="application/json",

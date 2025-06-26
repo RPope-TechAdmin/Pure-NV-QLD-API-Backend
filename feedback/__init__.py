@@ -1,51 +1,33 @@
 import logging
 import azure.functions as func
-import json
-import pyodbc
 import os
+import requests
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Processing feedback submission.')
+
     try:
-        data = req.get_json()
-        name = data.get("name")
-        feedback = data.get("feedback")
+        req_body = req.get_json()
+        name = req_body.get('name')
+        feedback = req_body.get('feedback')
 
         if not name or not feedback:
-            return func.HttpResponse(
-                json.dumps({ "error": "Missing fields" }),
-                mimetype="application/json",
-                status_code=400
-            )
+            return func.HttpResponse("Missing 'name' or 'feedback'", status_code=400)
 
-        # Connect to Azure SQL DB
-        conn = pyodbc.connect(
-            f"Driver={{ODBC Driver 18 for SQL Server}};"
-            f"Server={os.getenv('SQL_SERVER')};"
-            f"Database={os.getenv('SQL_DB')};"
-            f"Uid={os.getenv('SQL_USER')};"
-            f"Pwd={os.getenv('SQL_PASSWORD')};"
-            "Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
-        )
-        cursor = conn.cursor()
+        api_key = os.environ.get("BACKEND_API_KEY_DEFAULT")
+        if not api_key:
+            return func.HttpResponse("API key not configured in environment", status_code=500)
 
-        # Use parameterized query to avoid SQL injection
-        cursor.execute(
-            "INSERT INTO [Narangba].[Feedback] (Name, Feedback) VALUES (?, ?);",
-            (name, feedback)
-        )
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-        return func.HttpResponse(
-            json.dumps({ "message": "Feedback uploaded successfully. Thank you!" }),
-            mimetype="application/json"
+        response = requests.post(
+            f"https://your-upstream-api.net/feedback?code={api_key}",
+            json={"name": name, "feedback": feedback},
+            headers={"Accept": "application/json"}
         )
 
+        return func.HttpResponse(response.text, status_code=response.status_code)
+
+    except ValueError:
+        return func.HttpResponse("Invalid JSON input", status_code=400)
     except Exception as e:
-        logging.exception("Error submitting feedback")
-        return func.HttpResponse(
-            json.dumps({ "error": str(e) }),
-            mimetype="application/json",
-            status_code=500
-        )
+        logging.error(f"Unexpected error: {e}")
+        return func.HttpResponse("Something went wrong processing your request.", status_code=500)

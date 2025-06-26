@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure Functions: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python project to Azure Function App - PureNV-QLD-API-Backend
+name: Azure Function App Deploy
 
 on:
   push:
@@ -27,9 +27,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Deploy to Azure Functions
+      - name: 'Deploy to Azure Functions'
         uses: Azure/functions-action@v1
+        id: deploy-to-function
         with:
-          app-name: YOUR_FUNCTION_APP_NAME
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-          package: .
+          app-name: 'PureNV-QLD-API-Backend'
+          slot-name: 'Production'
+          package: '.'
+          

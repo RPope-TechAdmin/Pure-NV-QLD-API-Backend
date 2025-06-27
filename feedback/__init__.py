@@ -52,12 +52,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         user_claims = req.headers.get("x-ms-client-principal")
         if user_claims:
             import base64
-            import json
             decoded = base64.b64decode(user_claims).decode("utf-8")
             claims = json.loads(decoded)
             user_email = claims.get("userDetails", "unknown")
         else:
             user_email = "anonymous"
+
+        logging.info(f"Decoded user claims: {claims}")
 
         # ✅ Connect to Azure SQL
         conn = pymssql.connect(
@@ -68,13 +69,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         )
 
         cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO Narangba.Feedback (Name, Feedback) VALUES (%s, %s)",
-            (name, feedback)
-        )
-        conn.commit()
-        cursor.close()
-        conn.close()
+        try:
+            cursor.execute(
+                "INSERT INTO Narangba.Feedback (Name, Feedback) VALUES (%s, %s)",
+                (name, feedback)
+            )
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
 
         return func.HttpResponse(
             json.dumps({"code": 200, "message": "Feedback submitted successfully."}),

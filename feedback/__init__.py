@@ -4,8 +4,6 @@ import os
 import json
 import logging
 
-logging.info(f"📨 Request Headers: {dict(req.headers)}")
-
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("🔁 Feedback function triggered")
 

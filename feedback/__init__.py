@@ -27,6 +27,11 @@ def validate_token(token):
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("Processing feedback submission")
 
+    raw_body = req.get_body().decode("utf-8")
+    logging.info(f"Raw request body: {raw_body}")
+    logging.info(f"HTTP Method: {req.method}")
+    logging.info(f"Content-Length: {req.headers.get('Content-Length')}")
+
     try:
         # Parse JSON body
         try:

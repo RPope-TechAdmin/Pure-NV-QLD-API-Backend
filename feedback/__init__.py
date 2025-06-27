@@ -45,11 +45,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if not all([server, user, password, database]):
             raise ValueError("One or more required DB environment variables are missing.")
 
-        logging.info("🔌 Connecting to Azure SQL...")
+        logging.info("🔌 Connecting to Azure SQL with Server={server}, Database={database}, Login={user} and Password={password}")
         conn = pymssql.connect(server=server, user=user, password=password, database=database)
         cursor = conn.cursor()
 
-        logging.info("📤 Inserting feedback into DB...")
+        logging.info("📤 Executing Query: INSERT INTO Narangba.Feedback (Name, Feedback) VALUES ({name}, {feedback});")
         cursor.execute("INSERT INTO Feedback (name, feedback) VALUES (%s, %s)", (name, feedback))
         conn.commit()
         conn.close()

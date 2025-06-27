@@ -46,7 +46,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             raise ValueError("One or more required DB environment variables are missing.")
 
         logging.info("🔌 Connecting to Azure SQL with Server={server}, Database={database}, Login={user} and Password={password}")
-        conn = pymssql.connect(server=server, user=user, password=password, database=database)
+        conn = pymssql.connect(server="purenvqld.database.windows.net", user="rpope@purenv.au", password="Red-R0ck6341", database="Feedback")
         cursor = conn.cursor()
 
         logging.info("📤 Executing Query: INSERT INTO Narangba.Feedback (Name, Feedback) VALUES ({name}, {feedback});")

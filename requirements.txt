@@ -1,6 +1,7 @@
 azure-functions
 pandas
 openpyxl
-pymssql
+pyodbc
 requests_toolbelt
 xlrd
+pyJWT

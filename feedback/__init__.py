@@ -7,8 +7,8 @@ import jwt
 from jwt import PyJWKClient
 
 def validate_token(token):
-    tenant_id = "bce610d8-2607-48f3-b6e2-fd9acef2732d"
-    client_id = "767020ce-1519-45e6-94c8-a3b8620230b3"
+    tenant_id = "bce610d8-2607-48f3-b6e2-fd9acef2732d"  # Your tenant ID
+    client_id = "767020ce-1519-45e6-94c8-a3b8620230b3"  # Your client/app ID
     jwks_url = f"https://login.microsoftonline.com/{tenant_id}/discovery/v2.0/keys"
 
     jwk_client = PyJWKClient(jwks_url)
@@ -18,54 +18,70 @@ def validate_token(token):
         token,
         signing_key.key,
         algorithms=["RS256"],
-        audience={client_id},
+        audience=client_id,  # ← this must match what your app expects
         issuer=f"https://login.microsoftonline.com/{tenant_id}/v2.0"
     )
 
-    return decoded  # contains claims
+    return decoded
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info("Processing feedback submission")
+    logging.info("🔁 Processing feedback submission")
 
-    raw_body = req.get_body().decode("utf-8")
-    logging.info(f"Raw request body: {raw_body}")
-    logging.info(f"HTTP Method: {req.method}")
-    logging.info(f"Content-Length: {req.headers.get('Content-Length')}")
+    # ✅ Log request info
+    try:
+        raw_body = req.get_body().decode("utf-8")
+        logging.info(f"📦 Raw request body: {raw_body}")
+    except Exception as e:
+        logging.warning(f"Could not decode raw body: {e}")
+
+    logging.info(f"🧾 HTTP Method: {req.method}")
+    logging.info(f"📏 Content-Length: {req.headers.get('Content-Length')}")
+
+    # 🔐 Check Authorization header
+    auth_header = req.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return func.HttpResponse(
+            json.dumps({"error": "Missing or invalid Authorization header"}),
+            status_code=401,
+            mimetype="application/json"
+        )
+
+    token = auth_header.split(" ")[1]
 
     try:
-        # Parse JSON body
-        try:
-            data = req.get_json()
-        except ValueError:
-            return func.HttpResponse(
-                json.dumps({"error": "Invalid JSON"}),
-                status_code=400,
-                mimetype="application/json"
-            )
+        claims = validate_token(token)
+        user_email = claims.get("preferred_username", "unknown")
+        logging.info(f"✅ Authenticated user: {user_email}")
+    except Exception as e:
+        logging.exception("❌ Token validation failed")
+        return func.HttpResponse(
+            json.dumps({"error": "Unauthorized", "details": str(e)}),
+            status_code=401,
+            mimetype="application/json"
+        )
 
-        name = data.get("name")
-        feedback = data.get("feedback")
+    # 🧾 Parse JSON body
+    try:
+        data = req.get_json()
+    except ValueError:
+        return func.HttpResponse(
+            json.dumps({"error": "Invalid JSON"}),
+            status_code=400,
+            mimetype="application/json"
+        )
 
-        if not name or not feedback:
-            return func.HttpResponse(
-                json.dumps({"error": "Both 'name' and 'feedback' are required."}),
-                status_code=400,
-                mimetype="application/json"
-            )
+    name = data.get("name")
+    feedback = data.get("feedback")
 
-        # ✅ Optional: Extract authenticated user info
-        user_claims = req.headers.get("x-ms-client-principal")
-        if user_claims:
-            import base64
-            decoded = base64.b64decode(user_claims).decode("utf-8")
-            claims = json.loads(decoded)
-            user_email = claims.get("userDetails", "unknown")
-        else:
-            user_email = "anonymous"
+    if not name or not feedback:
+        return func.HttpResponse(
+            json.dumps({"error": "Both 'name' and 'feedback' are required."}),
+            status_code=400,
+            mimetype="application/json"
+        )
 
-        logging.info(f"Decoded user claims: {claims}")
-
-        # ✅ Connect to Azure SQL
+    # 🛠️ Connect to Azure SQL
+    try:
         conn = pymssql.connect(
             server=os.environ["SQL_SERVER"],
             user=os.environ["SQL_USER"],
@@ -74,15 +90,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         )
 
         cursor = conn.cursor()
-        try:
-            cursor.execute(
-                "INSERT INTO Narangba.Feedback (Name, Feedback) VALUES (%s, %s)",
-                (name, feedback)
-            )
-            conn.commit()
-        finally:
-            cursor.close()
-            conn.close()
+        cursor.execute(
+            "INSERT INTO Narangba.Feedback (Name, Feedback) VALUES (%s, %s)",
+            (name, feedback)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        logging.info("✅ Feedback saved to SQL database")
 
         return func.HttpResponse(
             json.dumps({"code": 200, "message": "Feedback submitted successfully."}),
@@ -91,7 +107,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         )
 
     except Exception as e:
-        logging.exception("Unhandled error")
+        logging.exception("❌ Database error")
         return func.HttpResponse(
             json.dumps({"error": "Server error", "details": str(e)}),
             status_code=500,

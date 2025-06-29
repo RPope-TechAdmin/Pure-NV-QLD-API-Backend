@@ -34,7 +34,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             headers={
                 "Access-Control-Allow-Origin": "https://calm-smoke-0485c311e.2.azurestaticapps.net",
                 "Access-Control-Allow-Methods": "POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Authorization, Content-Type",
+                "Access-Control-Allow-Headers": "Authorization, Content-Type, Accept",
                 "Access-Control-Max-Age": "86400"
             }
         )

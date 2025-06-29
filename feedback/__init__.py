@@ -1,10 +1,12 @@
 import logging
 import azure.functions as func
-import pymssql
+import azure.identity
+import pyodbc
 import os
 import json
 import jwt
 from jwt import PyJWKClient
+from azure.identity import ManagedIdentityCredentials
 
 def validate_token(token):
     tenant_id =  "655e497b-f0e8-44ed-98fb-77680dd02944" # Your tenant ID
@@ -98,23 +100,43 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         )
 
     # 🛠️ Connect to Azure SQL
-    try:
-        conn = pymssql.connect(
-            server=os.environ["SQL_SERVER"],
-            user=os.environ["SQL_USER"],
-            password=os.environ["SQL_PASSWORD"],
-            database=os.environ["SQL_DB"]
-        )
+    def get_db_connection():
+        credential = ManagedIdentityCredentials
+        token = credential.get_token("https://database.windows.net.").token
 
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO Narangba.Feedback (Name, Feedback) VALUES (%s, %s)",
-            (name, feedback)
-        )
-        conn.commit()
-        cursor.close()
-        conn.close()
+        access_token=bytes(token,"UTF-8")
+        token-struct=struct.pack("=i", len(access_token)) + access_token
 
+        conn=pyodbc.connect(
+            "Driver=ODBC Driver 18 for SQL Server;",
+            "Server=purenvqld.database.windows.net;",
+            "Database=Feedback;",
+            "Encrypt=yes;",
+            "TrustServerCertificate=no;",
+            "Authentication=ActiveDirectoryAccessToken;",
+            attrs_before={1256: token_struct}
+        )
+        return conn
+
+    def main(req: func.HttpRequest) -> func.HttpResponse:
+        try:
+            conn=get_db_connection()
+            cursor=conn.cursor()
+            cursor.execute(
+                "INSERT INTO Narangba.Feedback (Name, Feedback) VALUES (%s, %s)",
+                (name, feedback))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+        except Exception as e:
+                logging.exception("❌ Database error")
+                return func.HttpResponse(
+                    json.dumps({"error": "Server error", "details": str(e)}),
+                    status_code=500,
+                    mimetype="application/json"
+                )
+        
         logging.info("✅ Feedback saved to SQL database")
 
         return func.HttpResponse(
@@ -123,10 +145,4 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             mimetype="application/json"
         )
 
-    except Exception as e:
-        logging.exception("❌ Database error")
-        return func.HttpResponse(
-            json.dumps({"error": "Server error", "details": str(e)}),
-            status_code=500,
-            mimetype="application/json"
-        )
+    

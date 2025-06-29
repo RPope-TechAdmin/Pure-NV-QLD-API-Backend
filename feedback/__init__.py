@@ -7,8 +7,8 @@ import jwt
 from jwt import PyJWKClient
 
 def validate_token(token):
-    tenant_id = "bce610d8-2607-48f3-b6e2-fd9acef2732d"  # Your tenant ID
-    client_id = "655e497b-f0e8-44ed-98fb-77680dd02944"  # Your client/app ID
+    tenant_id =  "655e497b-f0e8-44ed-98fb-77680dd02944" # Your tenant ID
+    client_id = "bce610d8-2607-48f3-b6e2-fd9acef2732d"  # Your client/app ID
     jwks_url = f"https://login.microsoftonline.com/{tenant_id}/discovery/v2.0/keys"
 
     print(jwt.decode(token, options={"verify_signature": False}))
@@ -20,7 +20,7 @@ def validate_token(token):
         token,
         signing_key.key,
         algorithms=["RS256"],
-        audience="api://655e497b-f0e8-44ed-98fb-77680dd02944/user_impersonation",  # ← this must match what your app expects
+        audience="api://bce610d8-2607-48f3-b6e2-fd9acef2732d/user_impersonation",  # ← this must match what your app expects
         issuer=f"https://login.microsoftonline.com/{tenant_id}/v2.0"
     )
 

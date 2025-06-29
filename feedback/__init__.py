@@ -11,7 +11,8 @@ def validate_token(token):
     client_id = "bce610d8-2607-48f3-b6e2-fd9acef2732d"  # Your client/app ID
     jwks_url = f"https://login.microsoftonline.com/{tenant_id}/discovery/v2.0/keys"
 
-    print(jwt.decode(token, options={"verify_signature": False}))
+    unverified = jwt.decode(token, options={"verify_signature": False})
+    logging.info(f"🪪 Unverified token: {json.dumps(unverified, indent=2)}")
 
     jwk_client = PyJWKClient(jwks_url)
     signing_key = jwk_client.get_signing_key_from_jwt(token)

@@ -27,6 +27,18 @@ def validate_token(token):
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("🔁 Processing feedback submission")
 
+    # 🟡 Handle preflight CORS requests (OPTIONS)
+    if req.method == "OPTIONS":
+        return func.HttpResponse(
+            status_code=204,
+            headers={
+                "Access-Control-Allow-Origin": "https://calm-smoke-0485c311e.2.azurestaticapps.net",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Authorization, Content-Type",
+                "Access-Control-Max-Age": "86400"
+            }
+        )
+
     # ✅ Log request info
     try:
         raw_body = req.get_body().decode("utf-8")
@@ -61,7 +73,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info(f"Decoded token claims: {json.dumps(claims)}")
 
     print(jwt.decode(token, options={"verify_signature": False}))
-    
+
     # 🧾 Parse JSON body
     try:
         data = req.get_json()

@@ -50,8 +50,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         claims = validate_token(token)
-        user_email = claims.get("preferred_username", "unknown")
-        logging.info(f"✅ Authenticated user: {user_email}")
     except Exception as e:
         logging.exception("❌ Token validation failed")
         return func.HttpResponse(
@@ -59,7 +57,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             status_code=401,
             mimetype="application/json"
         )
+    
+    logging.info(f"Decoded token claims: {json.dumps(claims)}")
 
+    print(jwt.decode(token, options={"verify_signature": False}))
+    
     # 🧾 Parse JSON body
     try:
         data = req.get_json()

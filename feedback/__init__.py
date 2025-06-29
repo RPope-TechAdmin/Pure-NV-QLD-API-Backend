@@ -5,19 +5,6 @@ import os
 import json
 import jwt
 from jwt import PyJWKClient
-import base64
-
-# Extract token from "Bearer <token>"
-token = auth_header.split(" ")[1]
-
-# Print raw, unsigned token claims (DO NOT use this in production for validation)
-try:
-    unsigned_claims = jwt.decode(token, options={"verify_signature": False})
-    logging.info("🪪 Decoded token (no verification):")
-    logging.info(json.dumps(unsigned_claims, indent=2))
-except Exception as e:
-    logging.warning(f"Could not decode token without verification: {e}")
-
 
 def validate_token(token):
     tenant_id = "bce610d8-2607-48f3-b6e2-fd9acef2732d"  # Your tenant ID

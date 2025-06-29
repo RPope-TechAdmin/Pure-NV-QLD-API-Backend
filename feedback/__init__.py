@@ -18,7 +18,7 @@ def validate_token(token):
         token,
         signing_key.key,
         algorithms=["RS256"],
-        audience=client_id,  # ← this must match what your app expects
+        audience="api://{client_id}/user_impersonation",  # ← this must match what your app expects
         issuer=f"https://login.microsoftonline.com/{tenant_id}/v2.0"
     )
 

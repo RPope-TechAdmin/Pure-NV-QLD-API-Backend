@@ -7,7 +7,7 @@ import jwt
 from jwt import PyJWKClient
 
 def validate_token(token):
-    tenant_id = "bce610d8-2607-48f3-b6e2-fd9acef2732d"  # Your tenant ID
+    tenant_id = "655e497b-f0e8-44ed-98fb-77680dd02944"  # Your tenant ID
     client_id = "767020ce-1519-45e6-94c8-a3b8620230b3"  # Your client/app ID
     jwks_url = f"https://login.microsoftonline.com/{tenant_id}/discovery/v2.0/keys"
 

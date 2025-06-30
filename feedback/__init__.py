@@ -104,17 +104,27 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     # Save to DB
     try:
+        logging.info("📡 Attempting database connection...")
         conn = get_db_connection()
+
+        logging.info("🔗 Connected. Preparing cursor...")
         cursor = conn.cursor()
+
+        logging.info(f"📥 Inserting feedback: Name={name}, Feedback={feedback}")
         cursor.execute("INSERT INTO Narangba.Feedback (Name, Feedback) VALUES (?, ?)", (name, feedback))
+
+        logging.info("🗃️ Commit and close...")
         conn.commit()
         cursor.close()
         conn.close()
-        logging.info("✅ Feedback saved to SQL database")
+
     except Exception as e:
-        logging.exception("❌ Database error")
+        logging.exception("❌ Database operation failed")
         return func.HttpResponse(
-            json.dumps({"error": "Server error", "details": str(e)}),
+            json.dumps({
+                "error": "Server error",
+                "details": repr(e)  # 👈 shows the actual Python exception type + message
+            }),
             status_code=500,
             mimetype="application/json"
         )

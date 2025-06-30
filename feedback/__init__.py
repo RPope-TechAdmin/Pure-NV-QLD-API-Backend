@@ -40,9 +40,11 @@ def get_db_connection():
         "Driver={ODBC Driver 18 for SQL Server};"
         "Server=purenvqld.database.windows.net;"
         "Database=Feedback;"
+        f"UID={os.environ['SQL_USER']};"
+        f"PWD={os.environ['SQL_PASSWORD']};"
         "Encrypt=yes;"
         "TrustServerCertificate=no;"
-        "Authentication=ActiveDirectoryAccessToken;"
+        "Authentication=SqlPassword;"
     )
 
     conn = pyodbc.connect(connection_string, attrs_before={1256: token_struct})

@@ -53,7 +53,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(
             status_code=204,
             headers={
-                "Access-Control-Allow-Origin": "https://calm-smoke-0485c311e.2.azurestaticapps.net",
+                "Access-Control-Allow-Origin": "https://victorious-pond-02e3be310.2.azurestaticapps.net",
                 "Access-Control-Allow-Methods": "POST, OPTIONS",
                 "Access-Control-Allow-Headers": "Authorization, Content-Type, Accept",
                 "Access-Control-Max-Age": "86400"

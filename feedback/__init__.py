@@ -31,7 +31,8 @@ def validate_token(token):
 def get_db_connection():
     credential = ManagedIdentityCredential()
     token = credential.get_token("https://database.windows.net/").token
-    access_token = bytes(token, "UTF-8")
+
+    access_token = bytes(token, "utf-8")
     token_struct = struct.pack("=i", len(access_token)) + access_token
 
     conn = pyodbc.connect(

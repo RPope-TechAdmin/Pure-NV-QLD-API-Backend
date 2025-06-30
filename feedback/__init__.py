@@ -41,7 +41,7 @@ def get_db_connection():
         "Database=Feedback;"
         "Encrypt=yes;"
         "TrustServerCertificate=no;"
-        "Authentication=ActiveDirectoryAccessToken;"
+        "Authentication=ActiveDirectoryInteractive;"
     )
 
     conn = pyodbc.connect(connection_string, attrs_before={1256: token_struct})

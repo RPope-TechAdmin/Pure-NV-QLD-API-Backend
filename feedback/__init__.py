@@ -28,6 +28,7 @@ def validate_token(token):
     )
     return decoded
 
+
 def get_db_connection():
     credential = ManagedIdentityCredential()
     token = credential.get_token("https://database.windows.net/").token
@@ -41,7 +42,7 @@ def get_db_connection():
         "Database=Feedback;"
         "Encrypt=yes;"
         "TrustServerCertificate=no;"
-        "Authentication=ActiveDirectoryInteractive;"
+        "Authentication=ActiveDirectoryAccessToken;"
     )
 
     conn = pyodbc.connect(connection_string, attrs_before={1256: token_struct})

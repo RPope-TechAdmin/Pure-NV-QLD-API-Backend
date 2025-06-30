@@ -1,8 +1,0 @@
-azure-functions
-azure-identity
-pandas
-openpyxl
-pyodbc
-requests_toolbelt
-xlrd
-pyJWT

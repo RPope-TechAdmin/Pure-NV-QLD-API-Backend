@@ -35,16 +35,18 @@ def get_db_connection():
     access_token = bytes(token, "utf-8")
     token_struct = struct.pack("=i", len(access_token)) + access_token
 
-    conn = pyodbc.connect(
+    connection_string = (
         "Driver={ODBC Driver 18 for SQL Server};"
         "Server=purenvqld.database.windows.net;"
         "Database=Feedback;"
         "Encrypt=yes;"
         "TrustServerCertificate=no;"
-        "Authentication=ActiveDirectoryAccessToken;",
-        attrs_before={1256: token_struct}
+        "Authentication=ActiveDirectoryAccessToken;"
     )
+
+    conn = pyodbc.connect(connection_string, attrs_before={1256: token_struct})
     return conn
+
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("🔁 Processing feedback submission")

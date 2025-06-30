@@ -9,7 +9,7 @@ from jwt import PyJWKClient
 # 🔐 Token validation
 def validate_token(token):
     tenant_id = "655e497b-f0e8-44ed-98fb-77680dd02944"
-    client_id = "bce610d8-2607-48f3-b6e2-fd9acef2732d"
+    client_id = "162019e9-1091-4c41-8ab4-a5b00bdbf1fe"
     jwks_url = f"https://login.microsoftonline.com/{tenant_id}/discovery/v2.0/keys"
 
     # Log unverified token (optional but helpful)
@@ -53,7 +53,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(
             status_code=204,
             headers={
-                "Access-Control-Allow-Origin": "https://calm-smoke-0485c311e.2.azurestaticapps.net",
+                "Access-Control-Allow-Origin": "https://victorious-pond-02e3be310.2.azurestaticapps.net",
                 "Access-Control-Allow-Methods": "POST, OPTIONS",
                 "Access-Control-Allow-Headers": "Authorization, Content-Type, Accept",
                 "Access-Control-Max-Age": "86400"

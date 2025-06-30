@@ -24,7 +24,7 @@ def validate_token(token):
         signing_key.key,
         algorithms=["RS256"],
         audience=f"api://{client_id}",
-        issuer=f"https://sts.windows.net/{tenant_id}/"
+        issuer=f"https://login.microsoftonline.com/{tenant_id}/"
     )
     return decoded
 
